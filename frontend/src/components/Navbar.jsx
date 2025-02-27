@@ -1,8 +1,24 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FaHome,
+  FaHandsHelping,
+  FaUserPlus,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaUser,
+} from "react-icons/fa"; // Import icons
 
 function Navbar() {
-  const [isOpen, setIsOpen] = useState(false); // For mobile menu toggle
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user")); // Get user info
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-gradient-to-r from-teal-700 to-teal-900 shadow-lg sticky top-0 z-50">
@@ -10,37 +26,56 @@ function Navbar() {
         {/* Logo */}
         <Link
           to="/"
-          className="text-2xl font-extrabold text-white tracking-tight hover:text-teal-200 transition-colors duration-300"
+          className="text-2xl font-extrabold text-white tracking-tight hover:text-teal-200 transition-colors duration-300 flex items-center"
         >
-          Just Donate
+          <FaHome className="mr-2" /> Just Donate
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8">
-          <Link
-            to="/institute"
-            className="text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300"
-          >
-            Institute
-          </Link>
-          <Link
-            to="/donor"
-            className="text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300"
-          >
-            Donor
-          </Link>
-          <Link
-            to="/signup"
-            className="bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 hover:scale-105 transform transition-all duration-300"
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/login"
-            className="bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 hover:scale-105 transform transition-all duration-300"
-          >
-            Log In
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to={user.role === "institute" ? "/institute" : "/donor"}
+                className="text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300 flex items-center"
+              >
+                <FaUser className="mr-2" /> {user.name}
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 hover:scale-105 transform transition-all duration-300 flex items-center"
+              >
+                <FaSignOutAlt className="mr-2" /> Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/institute"
+                className="text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300 flex items-center"
+              >
+                <FaHandsHelping className="mr-2" /> Institute
+              </Link>
+              <Link
+                to="/donor"
+                className="text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300 flex items-center"
+              >
+                <FaHandsHelping className="mr-2" /> Donor
+              </Link>
+              <Link
+                to="/signup"
+                className="bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 hover:scale-105 transform transition-all duration-300 flex items-center"
+              >
+                <FaUserPlus className="mr-2" /> Sign Up
+              </Link>
+              <Link
+                to="/login"
+                className="bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 hover:scale-105 transform transition-all duration-300 flex items-center"
+              >
+                <FaSignInAlt className="mr-2" /> Log In
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -68,34 +103,57 @@ function Navbar() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-teal-800 px-6 py-4 space-y-4 animate-slide-in">
-          <Link
-            to="/institute"
-            className="block text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300"
-            onClick={() => setIsOpen(false)}
-          >
-            Institute
-          </Link>
-          <Link
-            to="/donor"
-            className="block text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300"
-            onClick={() => setIsOpen(false)}
-          >
-            Donor
-          </Link>
-          <Link
-            to="/signup"
-            className="block w-full bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 transition-all duration-300 text-center"
-            onClick={() => setIsOpen(false)}
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/login"
-            className="block w-full bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 transition-all duration-300 text-center"
-            onClick={() => setIsOpen(false)}
-          >
-            Log In
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to={user.role === "institute" ? "/institute" : "/donor"}
+                className="block text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300 flex items-center"
+                onClick={() => setIsOpen(false)}
+              >
+                <FaUser className="mr-2" /> {user.name}
+              </Link>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
+                className="block w-full bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 transition-all duration-300 flex items-center justify-center"
+              >
+                <FaSignOutAlt className="mr-2" /> Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/institute"
+                className="block text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300 flex items-center"
+                onClick={() => setIsOpen(false)}
+              >
+                <FaHandsHelping className="mr-2" /> Institute
+              </Link>
+              <Link
+                to="/donor"
+                className="block text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300 flex items-center"
+                onClick={() => setIsOpen(false)}
+              >
+                <FaHandsHelping className="mr-2" /> Donor
+              </Link>
+              <Link
+                to="/signup"
+                className="block text-white text-lg font-medium hover:text-teal-200 hover:underline underline-offset-4 transition-all duration-300 flex items-center"
+                onClick={() => setIsOpen(false)}
+              >
+                <FaUserPlus className="mr-2" /> Sign Up
+              </Link>
+              <Link
+                to="/login"
+                className="block w-full bg-coral-500 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-coral-600 transition-all duration-300 flex items-center justify-center"
+                onClick={() => setIsOpen(false)}
+              >
+                <FaSignInAlt className="mr-2" /> Log In
+              </Link>
+            </>
+          )}
         </div>
       )}
     </nav>

@@ -1,18 +1,30 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Data:", formData); // Replace with API call
+    try {
+      const res = await api.post("/auth/login", formData);
+      localStorage.setItem("token", res.data.token);
+      // Assuming backend returns user info; if not, fetch it separately
+      const userRes = await api.get("/auth/me"); // Add this endpoint in backend if needed
+      const user = userRes.data; // { name, role }
+      localStorage.setItem("user", JSON.stringify(user));
+      navigate(user.role === "institute" ? "/institute" : "/donor");
+    } catch (error) {
+      alert(error.response?.data.msg || "Login failed");
+    }
   };
 
   return (

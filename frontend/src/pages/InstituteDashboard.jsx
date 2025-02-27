@@ -1,14 +1,24 @@
 import { useState } from "react";
+import api from "../utils/api"; // Path assumes utils/ is a sibling to pages/
 
 function InstituteDashboard() {
   const [item, setItem] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Request submitted: ${quantity} of ${item}`);
-    setItem("");
-    setQuantity("");
+    setError("");
+    try {
+      const res = await api.post("/needs", {
+        items: [{ itemName: item, quantity }],
+      });
+      alert("Need submitted successfully!");
+      setItem("");
+      setQuantity("");
+    } catch (error) {
+      setError(error.response?.data.msg || "Failed to submit need");
+    }
   };
 
   return (
@@ -20,6 +30,7 @@ function InstituteDashboard() {
         <h2 className="text-2xl font-semibold text-teal-800 mb-6">
           Raise a Need
         </h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-teal-800 font-medium mb-2">
@@ -38,7 +49,7 @@ function InstituteDashboard() {
               Quantity
             </label>
             <input
-              type="number"
+              type="text"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               className="w-full p-3 border border-teal-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all duration-300"

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -8,13 +9,24 @@ function SignUp() {
     password: "",
     role: "donor", // Default role
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Sign Up Data:", formData); // Replace with API call
+    try {
+      const res = await api.post("/auth/register", formData);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ name: formData.name, role: formData.role })
+      );
+      navigate(formData.role === "institute" ? "/institute" : "/donor");
+    } catch (error) {
+      alert(error.response?.data.msg || "Sign up failed");
+    }
   };
 
   return (
