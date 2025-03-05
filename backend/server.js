@@ -4,7 +4,6 @@ const PORT = 3000;
 import cookieParser from "cookie-parser";
 
 import authRoute from "./routes/auth.route.js";
-
 const app = express();
 
 app.use(cookieParser());
